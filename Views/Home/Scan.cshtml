@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Scan du Réseau";
+}
+
+<h1>Scan du Réseau</h1>
+
+<button id="scanButton" class="btn btn-primary">Lancer le Scan</button>
+
+<table id="devicesTable" class="table table-striped mt-3" style="display:none;">
+    <thead>
+        <tr>
+            <th>Adresse IP</th>
+            <th>Statut</th>
+            <th>Temps de réponse (ms)</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>document.getElementById("scanButton").addEventListener("click", function () {
+            fetch('/Network/Scan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const table = document.getElementById("devicesTable");
+                const tbody = table.querySelector("tbody");
+                tbody.innerHTML = ""; // Réinitialiser le tableau
+
+                data.forEach(device => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${device.ipAddress}</td>
+                        <td>${device.status}</td>
+                        <td>${device.roundTripTime}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                table.style.display = "table"; // Afficher le tableau
+            })
+            .catch(error => console.error('Erreur lors du scan:', error));
+        });</script>
+}
